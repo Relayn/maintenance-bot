@@ -5,9 +5,9 @@ name: CI Pipeline
 # Триггеры для запуска workflow:
 on:
   push:
-    branches: [ "main" ] # При коммитах в ветку main
+    branches: [ "master" ] # При коммитах в ветку main
   pull_request:
-    branches: [ "main" ] # При создании Pull Request в ветку main
+    branches: [ "master" ] # При создании Pull Request в ветку main
 
 jobs:
   build-and-test:
