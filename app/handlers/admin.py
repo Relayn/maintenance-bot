@@ -1,9 +1,10 @@
 """
 Обработчики административных команд.
 """
+
 import logging
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
@@ -13,6 +14,7 @@ from app.services.user_service import UserService
 
 logger = logging.getLogger(__name__)
 
+
 @require_role("admin")
 async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
@@ -20,7 +22,7 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     Доступно только для администраторов.
     """
     message = update.effective_message
-    user_service: UserService = context.application.bot_data['user_service']
+    user_service: UserService = context.application.bot_data["user_service"]
     all_users = user_service.get_all_users()
 
     if not all_users:
@@ -33,8 +35,7 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         keyboard = [
             [
                 InlineKeyboardButton(
-                    "🗑️ Удалить",
-                    callback_data=f"delete_user:{user.telegram_id}"
+                    "🗑️ Удалить", callback_data=f"delete_user:{user.telegram_id}"
                 )
             ]
         ]
@@ -45,9 +46,7 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             f"   Роль: <i>{user.role}</i>"
         )
         await message.reply_text(
-            text=user_info,
-            parse_mode=ParseMode.HTML,
-            reply_markup=reply_markup
+            text=user_info, parse_mode=ParseMode.HTML, reply_markup=reply_markup
         )
 
 
@@ -79,10 +78,12 @@ async def add_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     role = context.args[1].lower()
-    user_service: UserService = context.application.bot_data['user_service']
+    user_service: UserService = context.application.bot_data["user_service"]
 
     if user_service.get_user_by_id(user_id_to_add):
-        await message.reply_text(f"Пользователь с ID <code>{user_id_to_add}</code> уже существует в системе.")
+        await message.reply_text(
+            f"Пользователь с ID <code>{user_id_to_add}</code> уже существует в системе."
+        )
         return
 
     name_placeholder = f"User_{user_id_to_add}"
@@ -93,7 +94,9 @@ async def add_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await message.reply_text(
             f"✅ Пользователь с ID <code>{new_user.telegram_id}</code> успешно добавлен с ролью `{role}`."
         )
-        logger.info(f"Admin {update.effective_user.id} added user {new_user.telegram_id} with role {role}.")
+        logger.info(
+            f"Admin {update.effective_user.id} added user {new_user.telegram_id} with role {role}."
+        )
     except Exception as e:
         await message.reply_text("❌ Произошла ошибка при добавлении пользователя.")
         logger.error(f"Failed to add user: {e}", exc_info=True)
@@ -124,19 +127,24 @@ async def delete_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await message.reply_text("⚠️ **Ошибка:** Telegram ID должен быть числом.")
         return
 
-    user_service: UserService = context.application.bot_data['user_service']
+    user_service: UserService = context.application.bot_data["user_service"]
 
     if user_service.delete_user(user_id_to_delete):
         await message.reply_text(
             f"✅ Пользователь с ID <code>{user_id_to_delete}</code> успешно удален."
         )
-        logger.info(f"Admin {update.effective_user.id} deleted user {user_id_to_delete}.")
+        logger.info(
+            f"Admin {update.effective_user.id} deleted user {user_id_to_delete}."
+        )
     else:
         await message.reply_text(
             f"⚠️ Пользователь с ID <code>{user_id_to_delete}</code> не найден в системе."
         )
 
-async def admin_user_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+async def admin_user_callback(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> None:
     """
     Обрабатывает нажатия на inline-кнопки в карточках пользователей.
     """
@@ -147,18 +155,22 @@ async def admin_user_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
     action, user_id_str = query.data.split(":", 1)
     user_id = int(user_id_str)
 
-    user_service: UserService = context.application.bot_data['user_service']
+    user_service: UserService = context.application.bot_data["user_service"]
 
     if action == "delete_user":
         # Проверяем, что кнопку нажал администратор
         # Это дополнительный слой безопасности
         admin_user = user_service.get_user_by_id(query.from_user.id)
-        if not (admin_user and admin_user.role == 'admin'):
+        if not (admin_user and admin_user.role == "admin"):
             await query.edit_message_text(text="⚠️ У вас нет прав для этого действия.")
             return
 
         logger.info(f"Admin {query.from_user.id} initiated deletion of user {user_id}.")
         if user_service.delete_user(user_id):
-            await query.edit_message_text(text=f"✅ Пользователь <code>{user_id}</code> удален.")
+            await query.edit_message_text(
+                text=f"✅ Пользователь <code>{user_id}</code> удален."
+            )
         else:
-            await query.edit_message_text(text=f"⚠️ Не удалось удалить. Пользователь <code>{user_id}</code> не найден.")
+            await query.edit_message_text(
+                text=f"⚠️ Не удалось удалить. Пользователь <code>{user_id}</code> не найден."
+            )

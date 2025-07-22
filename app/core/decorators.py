@@ -1,9 +1,10 @@
 """
 Декораторы для проверки авторизации и прав доступа.
 """
+
 import logging
 from functools import wraps
-from typing import Callable, Coroutine, Any
+from typing import Any, Callable, Coroutine
 
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -23,19 +24,22 @@ def require_role(*roles: str) -> Callable:
     Returns:
         Декоратор, который можно применить к обработчику python-telegram-bot.
     """
-    def decorator(func: Callable[[Update, ContextTypes.DEFAULT_TYPE], Coroutine[Any, Any, None]]):
+
+    def decorator(
+        func: Callable[[Update, ContextTypes.DEFAULT_TYPE], Coroutine[Any, Any, None]],
+    ):
         @wraps(func)
         async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             user = update.effective_user
             if not user:
                 return  # Не должно происходить в обычных чатах
 
-            user_service: UserService = context.application.bot_data['user_service']
+            user_service: UserService = context.application.bot_data["user_service"]
             db_user = user_service.get_user_by_id(user.id)
 
             if db_user and db_user.role in roles:
                 # Сохраняем данные о пользователе в контекст для удобного доступа
-                context.user_data['db_user'] = db_user
+                context.user_data["db_user"] = db_user
                 return await func(update, context)
             else:
                 role_str = db_user.role if db_user else "Unauthorized"
@@ -52,5 +56,7 @@ def require_role(*roles: str) -> Callable:
                     await update.effective_message.reply_text(
                         "⛔️ У вас нет доступа для выполнения этой команды."
                     )
+
         return wrapper
+
     return decorator
