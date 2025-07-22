@@ -1,0 +1,63 @@
+# Workflow для непрерывной интеграции (CI)
+
+name: CI Pipeline
+
+# Триггеры для запуска workflow:
+on:
+  push:
+    branches: [ "main" ] # При коммитах в ветку main
+  pull_request:
+    branches: [ "main" ] # При создании Pull Request в ветку main
+
+jobs:
+  build-and-test:
+    # Запускаем на последней версии Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонируем репозиторий
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Шаг 2: Настраиваем Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # Шаг 3: Устанавливаем Poetry
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-in-project: true # Создаем .venv в папке проекта
+
+      # Шаг 4: Устанавливаем зависимости
+      # Используем кэширование, чтобы ускорить последующие запуски
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      # Шаг 5: Запускаем линтер Ruff
+      - name: Run Ruff Linter
+        run: |
+          source .venv/bin/activate
+          ruff check .
+
+      # Шаг 6: Запускаем проверку форматирования Ruff
+      - name: Run Ruff Formatter Check
+        run: |
+          source .venv/bin/activate
+          ruff format --check .
+
+      # Шаг 7: Запускаем тесты Pytest
+      - name: Run Pytest
+        run: |
+          source .venv/bin/activate
+          pytest -v
