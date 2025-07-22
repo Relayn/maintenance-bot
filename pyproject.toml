@@ -14,12 +14,15 @@ pydantic-settings = "^2.10.1"
 gspread = "^6.2.1"
 google-api-python-client = "^2.176.0"
 tenacity = "^9.1.2"
+pytz = "^2025.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
 pytest-mock = "^3.14.1"
 ruff = "^0.12.4"
 black = "^25.1.0"
+pytest-asyncio = "^1.1.0"
+pre-commit = "^4.2.0"
 
 [build-system]
 requires = ["poetry-core"]

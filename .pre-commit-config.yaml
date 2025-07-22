@@ -1,0 +1,21 @@
+# .pre-commit-config.yaml
+# Конфигурация для pre-commit хуков.
+# https://pre-commit.com/
+
+repos:
+  # Репозиторий с официальными хуками pre-commit
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0 # Используем стабильную версию
+    hooks:
+      - id: trailing-whitespace # Убирает лишние пробелы в конце строк
+      - id: end-of-file-fixer   # Гарантирует, что файл заканчивается одной пустой строкой
+      - id: check-yaml          # Проверяет синтаксис YAML файлов
+      - id: check-added-large-files # Предотвращает коммит больших файлов (например, >5MB)
+
+  # Репозиторий для Ruff (супер-быстрый линтер)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.4 # Версия должна совпадать с версией в pyproject.toml
+    hooks:
+      - id: ruff
+        args: [--fix] # Автоматически исправлять то, что возможно
+      - id: ruff-format # Используем ruff для форматирования вместо black (он совместим)

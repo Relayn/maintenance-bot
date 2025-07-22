@@ -3,6 +3,7 @@
 
 Определяет единый формат и настройки для всех логгеров в приложении.
 """
+
 import logging
 import sys
 
@@ -22,10 +23,7 @@ def setup_logging(level: int = logging.INFO) -> None:
     stdout_handler.setFormatter(logging.Formatter(log_format))
 
     # Настраиваем корневой логгер
-    logging.basicConfig(
-        level=level,
-        handlers=[stdout_handler]
-    )
+    logging.basicConfig(level=level, handlers=[stdout_handler])
 
-    # Пример: отключаем слишком "шумные" логгеры сторонних библиотек, если потребуется
-    # logging.getLogger("httpx").setLevel(logging.WARNING)
+    # Устанавливаем уровень WARNING для "шумных" библиотек
+    logging.getLogger("httpx").setLevel(logging.WARNING)

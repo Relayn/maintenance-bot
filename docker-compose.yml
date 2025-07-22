@@ -1,0 +1,13 @@
+services:
+  bot:
+    build: .
+    container_name: maintenance_bot
+    # env_file указывает Docker Compose взять переменные окружения из файла .env
+    env_file:
+      - .env
+    # restart: unless-stopped автоматически перезапустит бота, если он упадет
+    restart: unless-stopped
+    # volumes монтирует credentials.json в контейнер.
+    # Это позволяет менять credentials.json без пересборки образа.
+    volumes:
+      - ./credentials.json:/app/credentials.json:ro
