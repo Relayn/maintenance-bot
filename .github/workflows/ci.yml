@@ -58,6 +58,15 @@ jobs:
 
       # Шаг 7: Запускаем тесты Pytest
       - name: Run Pytest
+        # Передаем "фальшивые" переменные окружения, необходимые для инициализации Pydantic Settings
+        env:
+          BOT_TOKEN: "123:dummy"
+          ADMIN_IDS: "1"
+          TECH_CHAT_ID: "-1"
+          GOOGLE_SHEET_ID: "dummy"
+          GOOGLE_DRIVE_FOLDER_ID: "dummy"
+          ISSUE_TYPES: "dummy"
+          DISPLAY_TIMEZONE: "UTC"
         run: |
           source .venv/bin/activate
           pytest -v
