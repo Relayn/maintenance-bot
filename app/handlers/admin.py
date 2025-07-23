@@ -29,7 +29,7 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         await message.reply_text("👥 Список пользователей пуст.")
         return
 
-    await message.reply_text("--- 👥 Список пользователей ---")
+    await message.reply_text(text="--- 👥 Список пользователей ---")
     for user in all_users:
         # Для каждого пользователя создаем свою клавиатуру
         keyboard = [
@@ -41,7 +41,7 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         user_info = (
-            f"👤 **{user.name}**\n"
+            f"👤 <b>{user.name}</b>\n"
             f"   ID: <code>{user.telegram_id}</code>\n"
             f"   Роль: <i>{user.role}</i>"
         )
@@ -57,7 +57,6 @@ async def add_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     Использование: /adduser <telegram_id> <роль>
     Пример: /adduser 123456789 housekeeper
     """
-    # Используем effective_message для надежности
     message = update.effective_message
 
     if len(context.args) != 2:
